@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
-import { User } from "../entity/User.entity";
+import { Employee } from "../entity/Employee.entity";
 import { encrypt } from "../helpers/helpers";
 
 
@@ -14,16 +14,16 @@ export class AuthController {
             .json({ message: " email and password required" });
         }
 
-        const userRepository = AppDataSource.getRepository(User);
-        const user = await userRepository.findOne({ where: { email } });
+        const employeeRepository = AppDataSource.getRepository(Employee);
+        const employee = await employeeRepository.findOne({ where: { email } });
 
-        const isPasswordValid = encrypt.comparepassword(user.password, password);
-        if (!user || !isPasswordValid) {
-          res.status(404).json({ message: "User not found" });
+        const isPasswordValid = encrypt.comparepassword(employee.password, password);
+        if (!employee || !isPasswordValid) {
+          res.status(404).json({ message: "employee not found" });
         }
-        const token = encrypt.generateToken({ id: user.id });
+        const token = encrypt.generateToken({ id: employee.id });
 
-        res.status(200).json({ message: "Login successful", user, token });
+        res.status(200).json({ message: "Login successful", employee, token });
       } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Internal server error" });
@@ -31,13 +31,13 @@ export class AuthController {
     }
 
     static async getProfile(req: Request, res: Response) {
-      if (!req[" currentUser"]) {
+      if (!req[" currentemployee"]) {
         res.status(401).json({ message: "Unauthorized" });
       }
-      const userRepository = AppDataSource.getRepository(User);
-      const user = await userRepository.findOne({
-        where: { id: req[" currentUser"].id },
+      const employeeRepository = AppDataSource.getRepository(Employee);
+      const employee = await employeeRepository.findOne({
+        where: { id: req[" currentemployee"].id },
       });
-      res.status(200).json({ ...user, password: undefined });
+      res.status(200).json({ ...employee, password: undefined });
     }
   }

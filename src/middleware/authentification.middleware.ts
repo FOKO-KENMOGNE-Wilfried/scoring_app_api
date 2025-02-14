@@ -21,7 +21,7 @@ export const authentification = (req: Request, res: Response, next: NextFunction
         res.status(401).json({ message: "Unauthorized" });
     }
 
-    req[" currentUser"] = decode;
+    req[" currentemployee"] = decode;
     next();
 
 }

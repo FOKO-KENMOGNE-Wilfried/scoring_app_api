@@ -1,22 +1,19 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm"
 
 @Entity()
-export class User {
+export class Site {
 
-    @PrimaryGeneratedColumn("uuid")
-    id: string
-
-    @Column({ nullable: false })
-    name: string
+    @PrimaryGeneratedColumn("increment")
+    id: number;
 
     @Column({ nullable: false })
-    email: string
+    name: string;
 
     @Column({ nullable: false })
-    password: string
+    location: string;
 
-    @Column({ default: false })
-    role: string
+    @Column({ nullable: false })
+    area: number;
 
     @CreateDateColumn()
     createAt: Date;

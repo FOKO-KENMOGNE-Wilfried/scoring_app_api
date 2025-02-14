@@ -1,7 +1,7 @@
 import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcrypt";
 import * as dotenv from "dotenv";
-import { payload } from "../dto/user.dto";
+import { payload } from "../dto/employee.dto";
 
 dotenv.config();
 

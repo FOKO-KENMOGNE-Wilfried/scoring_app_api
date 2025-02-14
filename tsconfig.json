@@ -4,8 +4,11 @@
          "es5",
          "es6"
       ],
-      "target": "es5",
+      "target": "es2016",
       "module": "commonjs",
+      "esModuleInterop": true,
+      "strict": false,
+      "skipLibCheck": true,
       "moduleResolution": "node",
       "outDir": "./build",
       "emitDecoratorMetadata": true,
