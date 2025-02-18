@@ -21,7 +21,7 @@ app.post("/recognition", (req: Request, res: Response) => {
 
     // Configure API key authorization: Apikey
     var Apikey = defaultClient.authentications['Apikey'];
-    Apikey.apiKey = '5e25484f-cf8c-4441-8202-750999db3230';
+    Apikey.apiKey = process.env.CLOUDMERSIVE_API_KEY;
 
 
 
