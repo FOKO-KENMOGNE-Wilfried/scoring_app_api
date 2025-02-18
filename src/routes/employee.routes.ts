@@ -17,25 +17,21 @@ Router.get(
 Router.get(
   "/profile",
   authentification,
-  authorization(["user", "admin"]),
+  authorization(["employee", "admin"]),
   AuthController.getProfile
 );
-
-Router.post("/signup", employeeController.signup);
-
-Router.post("/login", AuthController.login);
 
 Router.put(
   "/update/:id",
   authentification,
-  authorization(["user", "admin"]),
+  authorization(["employee", "admin"]),
   employeeController.updateEmployee
 );
 
 Router.put(
   "/addEmployeeProfile/:employee_id",
   authentification,
-  authorization(["user"]),
+  authorization(["admin, employee"]),
   uploadImage.single("profile"),
   employeeController.setEmployeeProfile
 )

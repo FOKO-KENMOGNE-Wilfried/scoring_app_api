@@ -5,7 +5,7 @@ import { payload } from "../dto/employee.dto";
 
 dotenv.config();
 
-const { JWT_SECRET = "" } = process.env;
+const { JWT_SECRET, JWT_TEMP_SECRET } = process.env;
 
 export class encrypt {
 
@@ -19,6 +19,10 @@ export class encrypt {
 
     static generateToken(payload: payload) {
         return jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
+    }
+
+    static generateTempsToken(payload: payload) {
+        return jwt.sign(payload, JWT_TEMP_SECRET, { expiresIn: 5 * 60 });
     }
 
 }
