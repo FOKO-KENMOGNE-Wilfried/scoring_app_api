@@ -11,7 +11,7 @@ Router.get(
   "/users",
   authentification,
   authorization(["admin"]),
-  employeeController.getemployees
+  employeeController.getEmployees
 );
 
 Router.get(
@@ -31,7 +31,7 @@ Router.put(
 Router.put(
   "/addEmployeeProfile/:employee_id",
   authentification,
-  authorization(["admin, employee"]),
+  authorization(["admin", "employee"]),
   uploadImage.single("profile"),
   employeeController.setEmployeeProfile
 )
@@ -40,7 +40,7 @@ Router.delete(
   "/delete/:id",
   authentification,
   authorization(["admin"]),
-  employeeController.deleteemployee
+  employeeController.deleteEmployee
 );
 
 export { Router as employeeRouter };

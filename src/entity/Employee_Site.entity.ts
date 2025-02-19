@@ -9,10 +9,10 @@ export class Employee_Site {
     id: number;
 
     @ManyToOne(() => Employee, employee => employee.id)
-    employee_id: number;
+    employee: number;
 
     @ManyToOne(() => Site, site => site.id)
-    site_id: number;
+    site: number;
 
     @CreateDateColumn()
     createAt: Date;

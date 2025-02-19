@@ -2,22 +2,19 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 import { Employee } from "./Employee.entity";
 
 @Entity()
-export class Scoring {
+export class Scoring_Request {
 
     @PrimaryGeneratedColumn("increment")
-    id: number;
+    id: string
 
     @ManyToOne(() => Employee, employee => employee.id)
     employee: number;
 
-    @Column({ nullable: true })
-    start_time: Date;
+    @Column({ default: true, nullable: false  })
+    is_validated: boolean;
 
-    @Column({ nullable: true })
-    end_time: Date;
-
-    @Column({ nullable: false, default: false })
-    is_closed: boolean;
+    @Column({ default: true, nullable: false  })
+    is_rejected: boolean;
 
     @CreateDateColumn()
     createAt: Date;

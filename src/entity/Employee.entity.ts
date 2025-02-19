@@ -18,7 +18,7 @@ export class Employee {
     @Column({ nullable: false })
     email: string
 
-    @Column({ nullable: false })
+    @Column({ nullable: false, select: false })
     password: string
 
     @Column({ default: false })
@@ -26,6 +26,9 @@ export class Employee {
 
     @Column({ nullable: false })
     position: string
+
+    @Column({ default: true, nullable: false  })
+    is_active: boolean;
 
     @Column({ nullable: true })
     profile: string;

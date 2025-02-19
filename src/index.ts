@@ -5,6 +5,8 @@ import * as dotenv from "dotenv";
 import { errorHandler } from "./middleware/error.middleware";
 import { employeeRouter } from "./routes/employee.routes";
 import { authRouter } from "./routes/auth.routes";
+import { siteRouter } from "./routes/site.routes";
+import { scoringRouter } from "./routes/scoring.routes";
 
 dotenv.config();
 
@@ -15,6 +17,8 @@ app.use(express.json());
 app.use(errorHandler);
 app.use("/auth", authRouter);
 app.use("/employees", employeeRouter);
+app.use("/sites", siteRouter);
+app.use("/scoring", scoringRouter);
 app.post("/recognition", (req: Request, res: Response) => {
     var CloudmersiveImageApiClient = require('cloudmersive-image-api-client');
     var defaultClient = CloudmersiveImageApiClient.ApiClient.instance;
@@ -23,28 +27,23 @@ app.post("/recognition", (req: Request, res: Response) => {
     var Apikey = defaultClient.authentications['Apikey'];
     Apikey.apiKey = process.env.CLOUDMERSIVE_API_KEY;
 
-
-
     var apiInstance = new CloudmersiveImageApiClient.FaceApi();
-
     var inputImage = Buffer.from(fs.readFileSync("public/test_image/4.jpg").buffer); // File | Image file to perform the operation on; this image can contain one or more faces which will be matched against face provided in the second image.  Common file formats such as PNG, JPEG are supported.
-
     var matchFace = Buffer.from(fs.readFileSync("public/test_image/2.jpg").buffer); // File | Image of a single face to compare and match against.
 
-
     var callback = function(error, data, response) {
-    if (error) {
-        console.error(error);
-        res.status(500).json({data: error});
-    } else {
-        console.log('API called successfully. Returned data: ' + data);
-        res.status(200).json({data: data});
-    }
+        if (error) {
+            console.error(error);
+            res.status(500).json({data: error});
+        } else {
+            console.log('API called successfully. Returned data: ' + data);
+            res.status(200).json({data: data});
+        }
     };
     apiInstance.faceCompare(inputImage, matchFace, callback);
 })
 
-app.get("*", (req: express.Request, res: express.Response) => {
+app.use("*", (req: express.Request, res: express.Response) => {
     res.status(505).json({ message: "bad Request" });
 });
 

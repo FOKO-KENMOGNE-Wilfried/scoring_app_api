@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm"
+import { Employee_Site } from "./Employee_Site.entity";
 
 @Entity()
 export class Site {
@@ -14,6 +15,9 @@ export class Site {
 
     @Column({ nullable: false })
     area: number;
+
+    @OneToMany(() => Employee_Site, employeeSite => employeeSite.site)
+    employeeSites: Employee_Site[];
 
     @CreateDateColumn()
     createAt: Date;
