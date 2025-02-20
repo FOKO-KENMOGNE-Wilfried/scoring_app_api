@@ -3,27 +3,63 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Scoring } from "../entity/Scoring.entity";
 import { Employee } from "../entity/Employee.entity";
+import { Scoring_Request } from "../entity/Scoring_Request.entity";
 
 
 export class ScoringController {
+
+    static async getScoringRequest(res: Response){
+
+        const scoringRequestRepository = AppDataSource.getRepository(Scoring_Request);
+        const scoringRequests = await scoringRequestRepository.find();
+
+        res.status(200).json(scoringRequests);
+
+    }
 
     static async requestForScoring(req: Request, res: Response) {
 
         const { employee_id } = req.params;
 
-        const scoringRepository = AppDataSource.getRepository(Scoring);
-        const employeeScoring = await scoringRepository.findOne({ where: { employee: parseInt(employee_id), is_closed: false } });
+        const scoringRequestRepository = AppDataSource.getRepository(Scoring_Request);
 
-        if (employeeScoring.start_time) {
-            employeeScoring.end_time = new Date();
-            employeeScoring.is_closed = true;
-            await scoringRepository.save(employeeScoring);
-            res.status(200).json({ message: "The end day scoring is ok" })
-        } else {
-            employeeScoring.start_time = new Date();
-            await scoringRepository.save(employeeScoring);
-            res.status(200).json({ message: "The start day scoring is ok" })
-        }
+        const scoringRequest = new Scoring_Request();
+        scoringRequest.employee = parseInt(employee_id);
+        scoringRequestRepository.save(scoringRequest);
+
+    }
+
+    static async validateScoringRequest(req: Request, res: Response) {
+
+        const { scoring_request_id } = req.params;
+
+        const scoringRequestRepository = AppDataSource.getRepository(Scoring_Request);
+        const scoringRequest = await scoringRequestRepository.findOne(
+            { where: {
+                id: scoring_request_id
+            }
+        });
+
+        scoringRequest.is_validated = true;
+        await scoringRequestRepository.save(scoringRequest);
+        res.status(200).json({ message: "Scoring request validated successfully" });
+
+    }
+
+    static async rejectScoringRequest(req: Request, res: Response) {
+
+        const { scoring_request_id } = req.params;
+
+        const scoringRequestRepository = AppDataSource.getRepository(Scoring_Request);
+        const scoringRequest = await scoringRequestRepository.findOne(
+            { where: {
+                id: scoring_request_id
+            }
+        });
+
+        scoringRequest.is_rejected = true;
+        await scoringRequestRepository.save(scoringRequest);
+        res.status(200).json({ message: "Scoring request rejected successfully" });
 
     }
 

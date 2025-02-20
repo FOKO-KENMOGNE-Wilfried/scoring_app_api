@@ -5,6 +5,9 @@ import { uploadImage } from "../middleware/multer";
 const Router = express.Router();
 
 Router.post("/requestForScoring/:employee_id", ScoringController.requestForScoring);
+Router.post("/validatedScoringRequest/:scoring_request_id", ScoringController.validateScoringRequest);
+Router.post("/rejectedScoringRequest/:scoring_request_id", ScoringController.rejectScoringRequest);
 Router.post("/doScoring/:employee_id", uploadImage.single("profile"), ScoringController.doScoring);
+Router.get("/getScoringRequest", ScoringController.getScoringRequest);
 
 export { Router as scoringRouter };

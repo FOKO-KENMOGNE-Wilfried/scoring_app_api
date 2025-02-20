@@ -10,10 +10,10 @@ export class Scoring_Request {
     @ManyToOne(() => Employee, employee => employee.id)
     employee: number;
 
-    @Column({ default: true, nullable: false  })
+    @Column({ default: false, nullable: false  })
     is_validated: boolean;
 
-    @Column({ default: true, nullable: false  })
+    @Column({ default: false, nullable: false  })
     is_rejected: boolean;
 
     @CreateDateColumn()
