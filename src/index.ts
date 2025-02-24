@@ -7,11 +7,27 @@ import { employeeRouter } from "./routes/employee.routes";
 import { authRouter } from "./routes/auth.routes";
 import { siteRouter } from "./routes/site.routes";
 import { scoringRouter } from "./routes/scoring.routes";
+import { spawn } from "child_process";
+import axios from "axios";
 
 dotenv.config();
 
 const app = express()
 const { PORT = 3000 } = process.env;
+
+const flaskProcess = spawn("python", ["src/face-recognition/app.py"]);
+// Output management
+flaskProcess.stdout.on("data", (data) => {
+    console.log(`Flask stdout: ${data}`);
+});
+// Error management
+flaskProcess.stderr.on("data", (data) => {
+    console.error(`Flask stderr: ${data}`);
+});
+// Server closing management
+flaskProcess.on("close", (code) => {
+    console.log(`Flask process exited with code ${code}`);
+})
 
 app.use(express.json());
 app.use(errorHandler);
@@ -42,6 +58,20 @@ app.post("/recognition", (req: Request, res: Response) => {
     };
     apiInstance.faceCompare(inputImage, matchFace, callback);
 })
+
+app.post('/get-embedding', async (req, res) => {
+    try {
+        const response = await axios.post('http://localhost:5000/extract_embedding', {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            },
+            data: req.body.image
+        });
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).send("Erreur lors de l'appel à Flask : " + error.message);
+    }
+});
 
 app.use("*", (req: express.Request, res: express.Response) => {
     res.status(505).json({ message: "bad Request" });
