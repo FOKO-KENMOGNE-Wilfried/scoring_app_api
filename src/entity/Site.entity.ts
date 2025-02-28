@@ -19,6 +19,9 @@ export class Site {
     @OneToMany(() => Employee_Site, employeeSite => employeeSite.site)
     employeeSites: Employee_Site[];
 
+    @Column({ nullable: false })
+    siteSchedules: string;
+
     @CreateDateColumn()
     createAt: Date;
 

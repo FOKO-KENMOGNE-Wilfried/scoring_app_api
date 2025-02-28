@@ -1,13 +1,5 @@
 generate migrations : npm run typeorm migration:generate -- ./src/migrations/migration-table -d ./src/data-source.ts
 
-run migration: 
-
-
-
-
-
-
-
 
 
 // var CloudmersiveImageApiClient = require('cloudmersive-image-api-client');
