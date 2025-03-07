@@ -10,5 +10,6 @@ export class EmployeeResponse {
 }
 
 export interface payload {
-    id: string
+    id: string;
+    role: string
 }

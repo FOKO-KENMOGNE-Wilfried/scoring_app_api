@@ -21,6 +21,9 @@ export class Employee {
     @Column({ nullable: false, select: false })
     password: string
 
+    @Column("simple-json", { nullable: true })
+    face_encodings: number[][]
+
     @Column({ default: false })
     role: string
 

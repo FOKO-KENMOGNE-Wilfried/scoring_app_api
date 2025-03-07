@@ -9,6 +9,8 @@ import { siteRouter } from "./routes/site.routes";
 import { scoringRouter } from "./routes/scoring.routes";
 import { spawn } from "child_process";
 import axios from "axios";
+import FormData from "form-data"
+import { uploadImage } from "./middleware/multer";
 
 dotenv.config();
 
@@ -35,43 +37,40 @@ app.use("/auth", authRouter);
 app.use("/employees", employeeRouter);
 app.use("/sites", siteRouter);
 app.use("/scoring", scoringRouter);
-app.post("/recognition", (req: Request, res: Response) => {
-    var CloudmersiveImageApiClient = require('cloudmersive-image-api-client');
-    var defaultClient = CloudmersiveImageApiClient.ApiClient.instance;
+// app.post("/recognition", uploadImage.single("profile"), async (req: Request, res: Response) => {
+//     try {
+//         const formData = new FormData();
+//         formData.append('user_id', req.body.user_id);
+//         formData.append('profile', fs.createReadStream(req.file?.path));
+//         const response = await axios.post('http://127.0.0.1:5000/verify', formData, {
+//             headers: formData.getHeaders(),
+//         });
 
-    // Configure API key authorization: Apikey
-    var Apikey = defaultClient.authentications['Apikey'];
-    Apikey.apiKey = process.env.CLOUDMERSIVE_API_KEY;
+//         console.log(response.data);
+//         res.send(response.data);
+//     } catch (error) {
+//         console.error(error.response ? error.response.data : error.message);
+//         res.status(500).send(error.response ? error.response.data : 'Erreur interne');
+//     }
+// })
 
-    var apiInstance = new CloudmersiveImageApiClient.FaceApi();
-    var inputImage = Buffer.from(fs.readFileSync("public/test_image/4.jpg").buffer); // File | Image file to perform the operation on; this image can contain one or more faces which will be matched against face provided in the second image.  Common file formats such as PNG, JPEG are supported.
-    var matchFace = Buffer.from(fs.readFileSync("public/test_image/2.jpg").buffer); // File | Image of a single face to compare and match against.
-
-    var callback = function(error, data, response) {
-        if (error) {
-            console.error(error);
-            res.status(500).json({data: error});
-        } else {
-            console.log('API called successfully. Returned data: ' + data);
-            res.status(200).json({data: data});
-        }
-    };
-    apiInstance.faceCompare(inputImage, matchFace, callback);
-})
-
-app.post('/get-embedding', async (req, res) => {
+app.post('/train', uploadImage.single("image"), async (req, res) => {
     try {
-        const response = await axios.post('http://localhost:5000/extract_embedding', {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            },
-            data: req.body.image
+        const formData = new FormData();
+        formData.append('user_id', req.body.user_id);
+        formData.append('image', fs.createReadStream(req.file?.path));
+        const response = await axios.post('http://127.0.0.1:5000/train', formData, {
+            headers: formData.getHeaders(),
         });
-        res.json(response.data);
+
+        console.log(response.data);
+        res.send(response.data);
     } catch (error) {
-        res.status(500).send("Erreur lors de l'appel à Flask : " + error.message);
+        console.error(error.response ? error.response.data : error.message);
+        res.status(500).send(error.response ? error.response.data : 'Erreur interne');
     }
 });
+
 
 app.use("*", (req: express.Request, res: express.Response) => {
     res.status(505).json({ message: "bad Request" });
