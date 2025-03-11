@@ -31,9 +31,23 @@ Router.put(
 Router.put(
   "/addEmployeeProfile/:employee_id",
   authentification,
-  authorization(["admin", "employee"]),
-  uploadImage.single("profile"),
+  authorization(["admin"]),
   employeeController.setEmployeeProfile
+)
+
+Router.put(
+  "/suspendEmployeeAccount/:employee_id",
+  authentification,
+  authorization(["admin"]),
+  employeeController.suspendEmployeeAccount
+)
+
+Router.put(
+  "/updateEmployeeRole/:employee_id",
+  authentification,
+  authorization(["admin"]),
+  uploadImage.single("profile"),
+  employeeController.updateEmployeeRole
 )
 
 Router.delete(

@@ -14,7 +14,30 @@ export class SiteController {
         const employees = await siteRepository
         .createQueryBuilder("employee_site")
         .leftJoinAndSelect("employee_site.employee", "employee")
+        .leftJoinAndSelect("employee_site.site", "site")
         .where("employee_site.siteId = :site_id", { site_id })
+        .getMany();
+
+        res.status(200).json({ message: "employees get to site successfully", employees: employees });
+
+    }
+    static async getAllSite(req: Request, res: Response) {
+
+        const siteRepository = AppDataSource.getRepository(Site);
+
+        const sitesList = await siteRepository.find();
+
+        res.status(200).json({ message: "Site get successfully",  sitesList})
+
+    }
+    static async getAllEmployee(req: Request, res: Response) {
+
+        const siteRepository = AppDataSource.getRepository(Employee_Site);
+
+        const employees = await siteRepository
+        .createQueryBuilder("employee_site")
+        .leftJoinAndSelect("employee_site.employee", "employee")
+        .leftJoinAndSelect("employee_site.site", "site")
         .getMany();
 
         res.status(200).json({ message: "employees get to site successfully", employees: employees });

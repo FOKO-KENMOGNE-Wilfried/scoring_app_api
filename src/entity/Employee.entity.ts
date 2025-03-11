@@ -15,7 +15,7 @@ export class Employee {
     @Column({ nullable: false })
     phone_number: string
 
-    @Column({ nullable: false })
+    @Column({ nullable: false, unique: true })
     email: string
 
     @Column({ nullable: false, select: false })

@@ -4,6 +4,8 @@ import { SiteController } from "../controllers/site.controller";
 const Router = express.Router();
 
 Router.get("/getEmployeeBySite/:site_id", SiteController.getEmployeeBySite);
+Router.get("/getAllEmployee", SiteController.getAllEmployee);
+Router.get("/getAllSite", SiteController.getAllSite);
 Router.post("/addSite", SiteController.addSite);
 Router.put("/updateSite/:site_id", SiteController.updateSite);
 Router.delete("/deleteSite/:site_id", SiteController.deleteSite);

@@ -28,6 +28,7 @@ export class employeeController {
         employeeDataSent.name = employee.name;
         employeeDataSent.email = employee.email;
         employeeDataSent.role = employee.role;
+        employeeDataSent.id = employee.id;
 
         res.status(200).json({ message: "employee created successfully", employeeDataSent });
 
@@ -66,6 +67,35 @@ export class employeeController {
         employee.profile = profile;
         await employeeRepository.save(employee)
         res.status(200).json({ message: "profile updated", employee });
+
+    }
+
+    static async updateEmployeeRole(req: Request, res: Response) {
+
+        const newrole = req.body.role;
+        const { employee_id } = req.params;
+
+        const employeeRepository = AppDataSource.getRepository(Employee);
+        const employee = await employeeRepository.findOne({
+            where: { id: employee_id },
+        });
+        employee.role = newrole;
+        await employeeRepository.save(employee)
+        res.status(200).json({ message: "Role updated", employee });
+
+    }
+
+    static async suspendEmployeeAccount (req: Request, res: Response) {
+
+        const { employee_id } = req.params;
+
+        const employeeRepository = AppDataSource.getRepository(Employee);
+        const employee = await employeeRepository.findOne({
+            where: { id: employee_id },
+        });
+        employee.is_active ? employee.is_active = false : employee.is_active = true;
+        await employeeRepository.save(employee)
+        res.status(200).json({ message: employee.is_active ? "Employee has been activated" : "Employee has been disabled", employee });
 
     }
 
