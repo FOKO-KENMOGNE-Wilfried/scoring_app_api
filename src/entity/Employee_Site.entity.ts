@@ -8,8 +8,8 @@ export class Employee_Site {
     @PrimaryGeneratedColumn("increment")
     id: number;
 
-    @ManyToOne(() => Employee, employee => employee.id)
-    employee: number;
+    @ManyToOne(() => Employee, employee => employee.employeeSites)
+    employee: Employee;
 
     @ManyToOne(() => Site, site => site.id)
     site: number;

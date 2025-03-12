@@ -7,6 +7,7 @@ import * as jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
 import FormData from "form-data";
 import axios from "axios";
+import { Scoring } from "../entity/Scoring.entity";
 
 dotenv.config();
 
@@ -89,6 +90,16 @@ export class AuthController {
     //         res.status(500).json({ message: "Internal server error" });
     //     }
     // }
+    static isSameDay(timestamp) {
+    const dbDate = new Date(timestamp);
+    const today = new Date();
+
+    return (
+        dbDate.getFullYear() === today.getFullYear() &&
+        dbDate.getMonth() === today.getMonth() &&
+        dbDate.getDate() === today.getDate()
+    );
+    }
 
     static async login(req: Request, res: Response) {
         try {
@@ -97,6 +108,8 @@ export class AuthController {
             const decode: any = jwt.verify(req.headers.authorization.split(" ")[1], process.env.JWT_TEMP_SECRET);
 
             const employeeRepository = AppDataSource.getRepository(Employee);
+            const scoringRepository = AppDataSource.getRepository(Scoring);
+            const scoringList = await scoringRepository.find({ where: { employee: {id: decode.id} } })
             const employee = await employeeRepository.findOne({ where: { id: decode.id } });
 
             try {
@@ -105,12 +118,21 @@ export class AuthController {
                 formData.append('profile', fs.createReadStream(profile));
                 await axios.post('http://127.0.0.1:5000/verify', formData, {
                     headers: formData.getHeaders(),
-                }).then((response: any) => {
+                }).then(async (response: any) => {
                     console.log(response.data);
                     if (response.status == 400) {
                         res.status(500).json({data: response.error});
                     } else {
                         if(response.status == 200) {
+                            let hasScoringToDay = false;
+                            scoringList.forEach(element => {
+                                AuthController.isSameDay(element.createAt) ? hasScoringToDay = true : hasScoringToDay = false;
+                            });
+                            if(!hasScoringToDay) {
+                                const scoring = new Scoring();
+                                scoring.employee.id = employee.id;
+                                await scoringRepository.save(scoring);
+                            }
                             const token = encrypt.generateToken({ id: employee.id, role: employee.role });
                             res.status(200).json({ message: "Login successful", token });
                         } else {

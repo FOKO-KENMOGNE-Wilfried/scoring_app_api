@@ -4,6 +4,9 @@ import { AppDataSource } from "../data-source";
 import { Scoring } from "../entity/Scoring.entity";
 import { Employee } from "../entity/Employee.entity";
 import { Scoring_Request } from "../entity/Scoring_Request.entity";
+import { encrypt } from "../helpers/helpers";
+import axios from "axios";
+import FormData from "form-data";
 
 
 export class ScoringController {
@@ -69,56 +72,50 @@ export class ScoringController {
         const profile = req.file?.path;
 
         const scoringRepository = AppDataSource.getRepository(Scoring);
-        const employeeScoring = await scoringRepository.findOne({ where: { employee: parseInt(employee_id), is_closed: false } });
+        const employeeScoring = await scoringRepository.findOne({ where: { employee: {id: employee_id}, is_closed: false } });
 
         const employeeRepository = AppDataSource.getRepository(Employee);
         const employee = await employeeRepository.findOne({ where: { id: employee_id } });
 
-        if (employeeScoring) {
-
-            var CloudmersiveImageApiClient = require('cloudmersive-image-api-client');
-            var defaultClient = CloudmersiveImageApiClient.ApiClient.instance;
-
-            // Configure API key authorization: Apikey
-            var Apikey = defaultClient.authentications['Apikey'];
-            Apikey.apiKey = process.env.CLOUDMERSIVE_API_KEY;
-
-            var apiInstance = new CloudmersiveImageApiClient.FaceApi();
-            var inputImage = /*profile;*/ Buffer.from(fs.readFileSync(profile)); // File | Image file to perform the operation on; this image can contain one or more faces which will be matched against face provided in the second image.  Common file formats such as PNG, JPEG are supported.
-            var matchFace = Buffer.from(fs.readFileSync(employee.profile).buffer); // File | Image of a single face to compare and match against.
-
-            var callback = async function(error, data, response) {
-                if (error) {
-                    // console.error(error);
-                    res.status(500).json({data: error});
-                } else {
-                    console.log('API called successfully. Returned data: ' + data);
-
-                    if(data.Successful) {
-
-
-                        if (employeeScoring.start_time) {
-                            employeeScoring.end_time = new Date();
-                            employeeScoring.is_closed = true;
-                            await scoringRepository.save(employeeScoring);
-                            res.status(200).json({ message: "The end day scoring is ok" })
-                        } else {
-                            employeeScoring.start_time = new Date();
-                            await scoringRepository.save(employeeScoring);
-                            res.status(200).json({ message: "The start day scoring is ok" })
-                        }
-
+        try {
+            if (!employeeScoring){
+                res.status(200).json({message: "No more scoring permitted"})
+            } else {
+                const formData = new FormData();
+                formData.append('user_id', employee.id);
+                formData.append('profile', fs.createReadStream(profile));
+                await axios.post('http://127.0.0.1:5000/verify', formData, {
+                    headers: formData.getHeaders(),
+                }).then(async (response: any) => {
+                    console.log(response.data);
+                    if (response.status == 400) {
+                        res.status(500).json({data: response.error});
                     } else {
-                        res.status(403).json({ message: "Face not recognized please try again" });
+                        if(response.status == 200) {
+                            if (employeeScoring.start_time) {
+                                employeeScoring.end_time = new Date();
+                                employeeScoring.is_closed = true;
+                                await scoringRepository.save(employeeScoring);
+                                res.status(200).json({ message: "The end day scoring is ok" })
+                            } else {
+                                employeeScoring.start_time = new Date();
+                                await scoringRepository.save(employeeScoring);
+                                res.status(200).json({ message: "The start day scoring is ok" })
+                            }
+                        } else {
+                            res.status(403).json({ message: "Face not recognized please try again" });
+                        }
                     }
-                }
-            };
-            apiInstance.faceCompare(inputImage, matchFace, callback);
+                }).catch((err) => {
+                    console.error(err.response ? err.response.data : err.message);
+                    res.status(500).send(err.response ? err.response.data : 'Erreur interne');
+                });
+            }
 
-        } else {
-            res.status(403).json({ message: "Internal server error" });
+        } catch (error) {
+            console.error(error.response ? error.response.data : error.message);
+            res.status(500).send(error.response ? error.response.data : 'Erreur interne');
         }
-
     }
 
 }

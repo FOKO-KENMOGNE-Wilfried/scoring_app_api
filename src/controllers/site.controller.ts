@@ -92,12 +92,20 @@ export class SiteController {
         const { employee_id } = req.body;
 
         const employeeSiteRepository = AppDataSource.getRepository(Employee_Site);
-        const employeeSite = new Employee_Site();
-        employeeSite.site = parseInt(site_id);
-        employeeSite.employee = employee_id;
 
-        await employeeSiteRepository.save(employeeSite);
-        res.status(200).json({ message: "employee added to site successfully" });
+        const employeeSite = await employeeSiteRepository.findOne({where: { employee: {id: employee_id}}});
+        if (employeeSite) {
+            employeeSite.site = parseInt(site_id);
+            employeeSiteRepository.save(employeeSite);
+            res.status(200).json({ message: "Employee site updated successfully" });
+        } else {
+            const newEmployeeSite = new Employee_Site();
+            newEmployeeSite.site = parseInt(site_id);
+            newEmployeeSite.employee = employee_id;
+
+            await employeeSiteRepository.save(newEmployeeSite);
+            res.status(200).json({ message: "employee added to site successfully" });
+        }
 
     }
     static async removeEmployeeFromSite(req: Request, res: Response) {

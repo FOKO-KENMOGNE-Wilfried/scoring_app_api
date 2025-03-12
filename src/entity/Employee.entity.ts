@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm"
+import { Employee_Site } from "./Employee_Site.entity"
 
 @Entity()
 export class Employee {
@@ -24,7 +25,7 @@ export class Employee {
     @Column("simple-json", { nullable: true })
     face_encodings: number[][]
 
-    @Column({ default: false })
+    @Column({ default: "employee" })
     role: string
 
     @Column({ nullable: false })
@@ -32,6 +33,10 @@ export class Employee {
 
     @Column({ default: true, nullable: false  })
     is_active: boolean;
+
+    @OneToMany(() => Employee_Site, (employeeSite) => employeeSite.employee)
+    employeeSites: Employee_Site[];
+
 
     @Column({ nullable: true })
     profile: string;

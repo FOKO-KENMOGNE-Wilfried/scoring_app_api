@@ -8,7 +8,7 @@ export class Scoring {
     id: number;
 
     @ManyToOne(() => Employee, employee => employee.id)
-    employee: number;
+    employee: Employee;
 
     @Column({ nullable: true })
     start_time: Date;
