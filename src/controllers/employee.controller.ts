@@ -55,6 +55,17 @@ export class employeeController {
 
     }
 
+    static async getEmployeeById(req: Request, res: Response) {
+
+        const { id } = req.params;
+
+        const employeeRepository = AppDataSource.getRepository(Employee);
+        const employee = await employeeRepository.findOne({ where: { id } });
+
+        res.status(200).json({ employee });
+
+    }
+
     static async setEmployeeProfile(req: Request, res: Response) {
 
         const profile = req.file?.path;

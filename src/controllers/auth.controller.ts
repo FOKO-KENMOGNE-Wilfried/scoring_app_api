@@ -113,36 +113,39 @@ export class AuthController {
             const employee = await employeeRepository.findOne({ where: { id: decode.id } });
 
             try {
-                const formData = new FormData();
-                formData.append('user_id', employee.id);
-                formData.append('profile', fs.createReadStream(profile));
-                await axios.post('http://127.0.0.1:5000/verify', formData, {
-                    headers: formData.getHeaders(),
-                }).then(async (response: any) => {
-                    console.log(response.data);
-                    if (response.status == 400) {
-                        res.status(500).json({data: response.error});
-                    } else {
-                        if(response.status == 200) {
+                // const formData = new FormData();
+                // formData.append('user_id', employee.id);
+                // formData.append('profile', fs.createReadStream(profile));
+                // await axios.post('http://127.0.0.1:5000/verify', formData, {
+                //     headers: formData.getHeaders(),
+                // }).then(async (response: any) => {
+                //     console.log(response.data);
+                //     if (response.status == 400) {
+                //         res.status(500).json({data: response.error});
+                //     } else {
+                //         if(response.status == 200) {
                             let hasScoringToDay = false;
                             scoringList.forEach(element => {
-                                AuthController.isSameDay(element.createAt) ? hasScoringToDay = true : hasScoringToDay = false;
+                                AuthController.isSameDay(element.createAt) ? hasScoringToDay = true : hasScoringToDay = hasScoringToDay;
                             });
                             if(!hasScoringToDay) {
                                 const scoring = new Scoring();
+                                const newEmployee = new Employee();
+                                scoring.employee = newEmployee;
                                 scoring.employee.id = employee.id;
                                 await scoringRepository.save(scoring);
+                                console.log("Scoring created")
                             }
                             const token = encrypt.generateToken({ id: employee.id, role: employee.role });
                             res.status(200).json({ message: "Login successful", token });
-                        } else {
-                            res.status(403).json({ message: "Face not recognized please try again" });
-                        }
-                    }
-                }).catch((err) => {
-                    console.error(err.response ? err.response.data : err.message);
-                    res.status(500).send(err.response ? err.response.data : 'Erreur interne');
-                });
+                //         } else {
+                //             res.status(403).json({ message: "Face not recognized please try again" });
+                //         }
+                //     }
+                // }).catch((err) => {
+                //     console.error(err.response ? err.response.data : err.message);
+                //     res.status(500).send(err.response ? err.response.data : 'Erreur interne');
+                // });
 
             } catch (error) {
                 console.error(error.response ? error.response.data : error.message);

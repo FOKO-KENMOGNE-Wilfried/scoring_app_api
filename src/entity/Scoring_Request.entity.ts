@@ -5,10 +5,10 @@ import { Employee } from "./Employee.entity";
 export class Scoring_Request {
 
     @PrimaryGeneratedColumn("increment")
-    id: string
+    id: number
 
     @ManyToOne(() => Employee, employee => employee.id)
-    employee: number;
+    employee: Employee;
 
     @Column({ default: false, nullable: false  })
     is_validated: boolean;

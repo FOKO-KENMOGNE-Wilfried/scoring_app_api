@@ -1,5 +1,5 @@
 import { AppDataSource } from "./data-source"
-import express, { Request, Response } from "express";
+import express, { Express } from "express";
 import fs from "fs"
 import * as dotenv from "dotenv";
 import { errorHandler } from "./middleware/error.middleware";
@@ -11,13 +11,29 @@ import { spawn } from "child_process";
 import axios from "axios";
 import FormData from "form-data"
 import { uploadImage } from "./middleware/multer";
+import { Server } from "socket.io";
+import http from "http";
+import path from "path";
 
 dotenv.config();
 
-const app = express()
+const app: Express = express()
 const { PORT = 3000 } = process.env;
 
 const flaskProcess = spawn("python", ["src/face-recognition/app.py"]);
+const server = http.createServer(app);
+const io = new Server(server);
+
+export { io };
+
+io.on("connection", (socket) => {
+    console.log("A client was connected established");
+
+    socket.on("error", (err) => {
+        console.log("Socket.IO error: ", err);
+    })
+})
+
 // Output management
 flaskProcess.stdout.on("data", (data) => {
     console.log(`Flask stdout: ${data}`);
@@ -33,26 +49,11 @@ flaskProcess.on("close", (code) => {
 
 app.use(express.json());
 app.use(errorHandler);
+app.use("/images", express.static(path.join(__dirname, '../images')));
 app.use("/auth", authRouter);
 app.use("/employees", employeeRouter);
 app.use("/sites", siteRouter);
 app.use("/scoring", scoringRouter);
-// app.post("/recognition", uploadImage.single("profile"), async (req: Request, res: Response) => {
-//     try {
-//         const formData = new FormData();
-//         formData.append('user_id', req.body.user_id);
-//         formData.append('profile', fs.createReadStream(req.file?.path));
-//         const response = await axios.post('http://127.0.0.1:5000/verify', formData, {
-//             headers: formData.getHeaders(),
-//         });
-
-//         console.log(response.data);
-//         res.send(response.data);
-//     } catch (error) {
-//         console.error(error.response ? error.response.data : error.message);
-//         res.status(500).send(error.response ? error.response.data : 'Erreur interne');
-//     }
-// })
 
 app.post('/train', uploadImage.single("image"), async (req, res) => {
     try {
@@ -79,7 +80,7 @@ app.use("*", (req: express.Request, res: express.Response) => {
 AppDataSource.initialize()
     .then(async () => {
 
-        app.listen(PORT, () => {
+        server.listen(PORT, () => {
             console.log(`Server is running at http://localhost:${PORT}`);
             console.log("Press CTRL+C to stop the server.");
         });

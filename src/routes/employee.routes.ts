@@ -15,6 +15,13 @@ Router.get(
 );
 
 Router.get(
+  "/employee/:id",
+  authentification,
+  authorization(["employee", "admin", "controller"]),
+  employeeController.getEmployeeById
+);
+
+Router.get(
   "/profile",
   authentification,
   authorization(["employee", "admin"]),
