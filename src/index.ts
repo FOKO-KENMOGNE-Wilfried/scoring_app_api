@@ -1,5 +1,5 @@
 import { AppDataSource } from "./data-source"
-import express, { Express } from "express";
+import express, { Express, Request, Response } from "express";
 import fs from "fs"
 import * as dotenv from "dotenv";
 import { errorHandler } from "./middleware/error.middleware";
@@ -14,6 +14,7 @@ import { uploadImage } from "./middleware/multer";
 import { Server } from "socket.io";
 import http from "http";
 import path from "path";
+import { statsRouter } from "./routes/stats.routes";
 
 dotenv.config();
 
@@ -54,6 +55,23 @@ app.use("/auth", authRouter);
 app.use("/employees", employeeRouter);
 app.use("/sites", siteRouter);
 app.use("/scoring", scoringRouter);
+app.use("/stats", statsRouter);
+app.post("/recognition", uploadImage.single("profile"), async (req: Request, res: Response) => {
+    try {
+        const formData = new FormData();
+        formData.append('user_id', req.body.user_id);
+        formData.append('profile', fs.createReadStream(req.file?.path));
+        const response = await axios.post('http://127.0.0.1:5000/verify', formData, {
+            headers: formData.getHeaders(),
+        });
+
+        console.log(response.data);
+        res.send(response.data);
+    } catch (error) {
+        console.error(error.response ? error.response.data : error.message);
+        res.status(500).send(error.response ? error.response.data : 'Erreur interne');
+    }
+})
 
 app.post('/train', uploadImage.single("image"), async (req, res) => {
     try {

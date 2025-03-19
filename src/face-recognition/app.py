@@ -48,7 +48,7 @@ def verify_user():
             existing_encodings = json.loads(result[0])  # Convertir JSON en liste
 
             # Comparer avec tous les encodages existants
-            matches = face_recognition.compare_faces(existing_encodings, input_encoding)
+            matches = face_recognition.compare_faces(existing_encodings, input_encoding, tolerance=0.4)
             if any(matches):
                 return jsonify({'message': 'Utilisateur reconnu avec succès !'}), 200
         return jsonify({'error': 'Utilisateur non reconnu !'}), 400
